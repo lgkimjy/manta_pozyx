@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import ssl
 
-host = "192.168.100.73" # fill in the IP of your gateway
+host = "10.0.0.254" # fill in the IP of your gateway
 port = 1883
 topic = "tags" 
 
