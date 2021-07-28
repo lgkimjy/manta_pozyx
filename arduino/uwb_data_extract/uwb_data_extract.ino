@@ -1,6 +1,7 @@
 #include <Pozyx.h>
 #include <Pozyx_definitions.h>
 #include <Wire.h>
+#include <time.h>
 
 
 /* Initialize */
@@ -28,6 +29,7 @@ void setup(){
   Pozyx.getNetworkId(&devId[devices_found]);
   Serial.print("0x");
   Serial.println(devId[0], HEX);
+  
 }
 
 
@@ -58,13 +60,16 @@ void loop(){
   //printQuaternion(quaternions);
 
   coordinates_t coords;
-  // int statuss = Pozyx.doRemotePositioning(devId[0], &coords, dimension, height, algorithm);
+uint16_t remote_id = 0x763E;     
+  
+//  doRemotePositioning(uint16_t remote_id, coordinates_t *coordinates, uint8_t dimension, int32_t height=0);
+//   int states = Pozyx.doRemotePositioning(remote_id, &coords, dimension, height, algorithm);
   int states = Pozyx.doPositioning(&coords, dimension, height, algorithm);
   // Pozyx.setCoordinates(coords, devId[0]);
-  
+
   if(states == POZYX_SUCCESS){
     Serial.print("POZYX_SUCCESS : ");
-    printCoordinates(coords, devId[0]);
+    printCoordinates(coords, remote_id);
   }
 
   delay(100);
