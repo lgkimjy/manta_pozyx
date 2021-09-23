@@ -20,7 +20,9 @@ void readConfigData()
         ROS_ERROR("Fail to load Config yaml file!");
         return;
     }
-    alpha = lpf_doc["alpha"].as<float>();
+    x_alpha = lpf_doc["x_alpha"].as<float>();
+    y_alpha = lpf_doc["y_alpha"].as<float>();
+    z_alpha = lpf_doc["z_alpha"].as<float>();
     xoffset = offset_doc["x"].as<float>();
     yoffset = offset_doc["y"].as<float>();
     zoffset = offset_doc["z"].as<float>();
@@ -33,7 +35,7 @@ void setOffset(tag data)
     pose.pose.position.z = data.z - zoffset;
 }
 
-float LowPassFilter(float raw_value)
+float LowPassFilter(float raw_value, float alpha)
 {
     float output;
     
@@ -64,7 +66,7 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
         
         // Filtering
         pose = msg->data[i];                                                                  // data copy (deep copy)
-        pose.pose.position.z = LowPassFilter(msg->data[0].pose.position.z);                   // Low Pass Filter
+        pose.pose.position.z = LowPassFilter(msg->data[0].pose.position.z, z_alpha);                   // Low Pass Filter
 
         // Data Offset
         setOffset(tag{pose.pose.position.x, pose.pose.position.y, pose.pose.position.z});
