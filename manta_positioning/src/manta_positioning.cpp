@@ -45,9 +45,29 @@ float LowPassFilter(float raw_value, float alpha)
     return output;
 }
 
-float MovingAvgeFilter()
+float MovingAvgeFilter(float raw_value, int n_samples)
 {
-    return 0.0;
+    float output;
+    float samples;
+
+    data_buff.push_back(raw_value);
+
+    if(data_buff.size() == 1){
+        output = raw_value;
+    }
+    else if(data_buff.size() < n_samples){
+        output = (accumulate(data_buff.begin(), data_buff.end(), 0)) / data_buff.size();
+    }
+    else{
+
+        samples = data_buff.front();
+        data_buff.erase(data_buff.begin());
+
+        output = prev_avg_value + (raw_value - samples) / n_samples;
+        prev_avg_value = output;
+    }
+
+    return output;
 }
 
 void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
@@ -59,6 +79,8 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
     
     if(flag == 0){
         prev_raw_value = msg->data[0].pose.position.z;
+        prev_avg_value = msg->data[0].pose.position.z;
+
         flag++;
     }
 
@@ -66,7 +88,8 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
         
         // Filtering
         pose = msg->data[i];                                                                  // data copy (deep copy)
-        pose.pose.position.z = LowPassFilter(msg->data[0].pose.position.z, z_alpha);                   // Low Pass Filter
+        pose.pose.position.z = LowPassFilter(msg->data[0].pose.position.z, z_alpha);          // Low Pass Filter
+        pose.pose.position.z = MovingAvgeFilter(msg->data[0].pose.position.z, 500);
 
         // Data Offset
         setOffset(tag{pose.pose.position.x, pose.pose.position.y, pose.pose.position.z});

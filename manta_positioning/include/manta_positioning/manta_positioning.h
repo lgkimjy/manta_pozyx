@@ -30,10 +30,12 @@ manta_positioning::mqtt_msg filtered_msg;
 geometry_msgs::PoseStamped pose;
 ros::Publisher pose_pub;
 
-float raw_value, prev_raw_value;
+float raw_value, prev_raw_value, prev_avg_value;
 float x_alpha, y_alpha, z_alpha;
 float xoffset, yoffset, zoffset;
 int flag=0;
+int count=0;
+vector<float> data_buff;
 
 void readConfigData();
 void setOffset(tag data);
