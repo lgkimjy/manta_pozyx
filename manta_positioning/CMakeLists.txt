@@ -57,3 +57,7 @@ include_directories(
 add_executable(manta_positioning src/manta_positioning.cpp)
 target_link_libraries(manta_positioning ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
 add_dependencies(manta_positioning ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(manta_positioning_association src/manta_positioning_association.cpp)
+target_link_libraries(manta_positioning_association ${catkin_LIBRARIES} ${YAML_CPP_LIBRARIES})
+add_dependencies(manta_positioning_association ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
