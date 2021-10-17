@@ -25,4 +25,4 @@ manta_positioning::mqtt_msg filtered_msg;
 geometry_msgs::PoseStamped pose;
 ros::Publisher pose_pub;
 
-void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg);
+void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg);

@@ -5,13 +5,10 @@
 
 #include "manta_positioning/manta_positioning_association.h"
 
-void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
-{    
-    for(int i=0; i<msg->data.size(); i++){
-        
-        pose = msg->data[i];                                                                  // data copy (deep copy)
-        filtered_msg.data.push_back(pose);
-    }
+void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+    pose = *msg;
+    filtered_msg.data.push_back(pose);
 }
 
 void controlFunction(const ros::TimerEvent&)
@@ -36,8 +33,6 @@ int main(int argc, char **argv){
         string data = "coord_" + to_string(i);
         list[i] = nh.subscribe(data, 10, poseCallback);
     }
-    // ros::Subscriber obstacle_sub = nh.subscribe("/mqtt_coord", 10, poseCallback);  // Data from mqtt protocol
-    // ros::Subscriber obstacle_sub = nh.subscribe("/coord", 10, poseCallback);    // Data from raspberry pi / arduino
 
     ros::Timer timer_control = nh.createTimer(ros::Duration(0.025), controlFunction); // 25ms
 
