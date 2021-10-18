@@ -17,7 +17,7 @@ void poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 
 void controlFunction(const ros::TimerEvent&)
 {
-    if(flag < num){
+    if(flag >= num){
         pose_pub.publish(filtered_msg);
         filtered_msg.data.clear();
         flag = 0;

@@ -75,7 +75,6 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
     tag offset;
     
     readConfigData();
-    filtered_msg.data.clear();
     
     if(flag == 0){
         prev_raw_value = msg->data[0].pose.position.z;
@@ -85,18 +84,19 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
     }
 
     for(int i=0; i<msg->data.size(); i++){
-        
-        // Filtering
-        pose = msg->data[i];                                                                  // data copy (deep copy)
-        pose.pose.position.z = LowPassFilter(msg->data[0].pose.position.z, z_alpha);          // Low Pass Filter
-        pose.pose.position.z = MovingAvgeFilter(msg->data[0].pose.position.z, 500);
+        pose = msg->data[i];                                                                 // data copy (deep copy)
+        if(tag_id == pose.header.frame_id)
+        {
+            // Filtering
+            pose.pose.position.z = LowPassFilter(msg->data[i].pose.position.z, z_alpha);          // Low Pass Filter
+            // pose.pose.position.z = MovingAvgeFilter(msg->data[i].pose.position.z, 500);
+            // Data Offset
+            setOffset(tag{pose.pose.position.x, pose.pose.position.y, pose.pose.position.z});
 
-        // Data Offset
-        setOffset(tag{pose.pose.position.x, pose.pose.position.y, pose.pose.position.z});
-
-        filtered_msg.data.push_back(pose);
+            pose_pub.publish(pose);
+            break;
+        }
     }
-    pose_pub.publish(filtered_msg);
 }
 
 int main(int argc, char **argv){
@@ -105,10 +105,17 @@ int main(int argc, char **argv){
     ros::NodeHandle nh; 
     ros::Rate loop_rate(10);
 
+    string topic;
+    nh.getParam("robot_id", robot_id);
+    nh.getParam("tag_id", tag_id);
+
     ros::Subscriber obstacle_sub = nh.subscribe("/mqtt_coord", 10, poseCallback);  // Data from mqtt protocol
     // ros::Subscriber obstacle_sub = nh.subscribe("/coord", 10, poseCallback);    // Data from raspberry pi / arduino
     
-    pose_pub = nh.advertise<manta_positioning::mqtt_msg>("/filtered/coord", 10);
+    topic = "coord_" + to_string(robot_id);
+    cout << tag_id << endl;
+
+    pose_pub = nh.advertise<geometry_msgs::PoseStamped>(topic, 10);
 
     while(ros::ok()){
 

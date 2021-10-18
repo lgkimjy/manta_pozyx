@@ -26,9 +26,12 @@ struct tag{
     float z;
 };
 
-manta_positioning::mqtt_msg filtered_msg;
+// manta_positioning::mqtt_msg filtered_msg;
 geometry_msgs::PoseStamped pose;
 ros::Publisher pose_pub;
+
+string tag_id;
+int robot_id;
 
 float raw_value, prev_raw_value, prev_avg_value;
 float x_alpha, y_alpha, z_alpha;

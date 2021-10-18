@@ -1,0 +1,7 @@
+<launch>
+  
+  <param name="tag_id" value="30306" />
+  <param name="robot_id" value="0" />
+  <node pkg="manta_positioning" type="manta_positioning" name="manta_positioning" output="screen"></node>
+
+</launch>
