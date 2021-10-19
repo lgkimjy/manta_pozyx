@@ -30,8 +30,7 @@ struct tag{
 geometry_msgs::PoseStamped pose;
 ros::Publisher pose_pub;
 
-string tag_id;
-int robot_id;
+int tag_id;
 
 float raw_value, prev_raw_value, prev_avg_value;
 float x_alpha, y_alpha, z_alpha;

@@ -85,7 +85,7 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
 
     for(int i=0; i<msg->data.size(); i++){
         pose = msg->data[i];                                                                 // data copy (deep copy)
-        if(tag_id == pose.header.frame_id)
+        if(to_string(tag_id) == pose.header.frame_id)
         {
             // Filtering
             pose.pose.position.z = LowPassFilter(msg->data[i].pose.position.z, z_alpha);          // Low Pass Filter
@@ -105,15 +105,11 @@ int main(int argc, char **argv){
     ros::NodeHandle nh; 
     ros::Rate loop_rate(10);
 
-    string topic;
-    nh.getParam("robot_id", robot_id);
+    string topic = "coord";
     nh.getParam("tag_id", tag_id);
 
     ros::Subscriber obstacle_sub = nh.subscribe("/mqtt_coord", 10, poseCallback);  // Data from mqtt protocol
     // ros::Subscriber obstacle_sub = nh.subscribe("/coord", 10, poseCallback);    // Data from raspberry pi / arduino
-    
-    topic = "coord_" + to_string(robot_id);
-    cout << tag_id << endl;
 
     pose_pub = nh.advertise<geometry_msgs::PoseStamped>(topic, 10);
 
