@@ -27,7 +27,10 @@ void controlFunction(const ros::TimerEvent&)
 int main(int argc, char **argv){
 
     ros::init(argc, argv, "manta_positioning_association");
-    ros::NodeHandle nh; 
+    ros::NodeHandle nh;
+
+    ROS_INFO("[Manta Positioning Association] Node activated");
+
     ros::Rate loop_rate(10);
 
     ros::Subscriber sub0, sub1, sub2, sub3, sub4;
@@ -40,7 +43,7 @@ int main(int argc, char **argv){
     list.push_back(sub4);
 
     for(int i=0; i<list.size(); i++){
-        string data = "coord_" + to_string(i);
+        string data = "/robot_" + to_string(i) + "/coord";
         list[i] = nh.subscribe(data, 10, poseCallback);
     }
 
