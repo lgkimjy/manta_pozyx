@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import rospy
-from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Coordinates, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, Magnetic, MaxLinearAcceleration, Pressure, Quaternion, Temperature)
+from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, MaxLinearAcceleration, Quaternion)
 from geometry_msgs.msg import Accel
 from geometry_msgs.msg import QuaternionStamped
-from std_msgs.msg import Float64MultiArray
 
 pub_acc = rospy.Publisher('/accel', Accel, queue_size=10)
 pub_quat = rospy.Publisher('/quaternion', QuaternionStamped, queue_size=10)
@@ -44,12 +43,10 @@ def timer_callback(event):
 	# euler
 	euler_msg = QuaternionStamped()
 	euler_msg.quaternion.x, euler_msg.quaternion.y, euler_msg.quaternion.z = returnEulerAngles()  ## roll, pitch, yaw
-	pub_euler.publish(euler_msg)
-	
 	# publisher
 	pub_acc.publish(acc_msg)
 	pub_quat.publish(quat_msg)
-
+	pub_euler.publish(euler_msg)
 
 if __name__ == '__main__':
 	global pozyx
@@ -66,5 +63,4 @@ if __name__ == '__main__':
 	rospy.Timer(rospy.Duration(0.01), timer_callback)
 
 	while not rospy.is_shutdown():
-
 		rospy.sleep(0.1)
