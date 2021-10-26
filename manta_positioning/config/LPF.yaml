@@ -1,3 +1,15 @@
-x_alpha : 1
-y_alpha : 1
-z_alpha : 0.001
+tag 0 :
+  id : 30306
+  x_alpha : 1
+  y_alpha : 1
+  z_alpha : 0.1
+tag 1 :
+  id : 30307
+  x_alpha : 2
+  y_alpha : 2
+  z_alpha : 0.002
+tag 2 :
+  id : 30308
+  x_alpha : 3
+  y_alpha : 3
+  z_alpha : 0.003
