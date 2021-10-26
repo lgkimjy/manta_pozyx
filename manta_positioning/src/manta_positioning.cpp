@@ -20,27 +20,26 @@ void readConfigData()
         ROS_ERROR("Fail to load Config yaml file!");
         return;
     }
-    x_alpha = lpf_doc["x_alpha"].as<float>();
-    y_alpha = lpf_doc["y_alpha"].as<float>();
-    z_alpha = lpf_doc["z_alpha"].as<float>();
-    xoffset = offset_doc["x"].as<float>();
-    yoffset = offset_doc["y"].as<float>();
-    zoffset = offset_doc["z"].as<float>();
+    vector<string> docs = {"tag 0", "tag 1", "tag 2"};
+
+    tags.clear();
+    for(int i=0; i<docs.size(); i++)
+    {
+        tag temp;
+        temp.id = lpf_doc[docs[i]]["id"].as<string>();
+        temp.x_alpha = lpf_doc[docs[i]]["x_alpha"].as<float>();
+        temp.y_alpha = lpf_doc[docs[i]]["y_alpha"].as<float>();
+        temp.z_alpha = lpf_doc[docs[i]]["z_alpha"].as<float>();;
+        tags.push_back(temp);
+    }
 }
 
-void setOffset(tag data)
-{
-    pose.pose.position.x = data.x - xoffset;
-    pose.pose.position.y = data.y - yoffset;
-    pose.pose.position.z = data.z - zoffset;
-}
-
-float LowPassFilter(float raw_value, float alpha)
+float LowPassFilter(tag tag_data, int index)
 {
     float output;
-    
-    output = alpha*raw_value + (1.0 - alpha)*prev_raw_value;
-    prev_raw_value = output;
+    // cout << "tag id : " << tag_data.id << " : " << tag_data.z_alpha << " : " << tag_data.prev_raw_value << " " << index<< endl ;
+    output = tag_data.z_alpha*tag_data.z + (1.0 - tag_data.z_alpha)*tag_data.prev_raw_value;
+    tags[index].prev_raw_value = output;
 
     return output;
 }
@@ -72,31 +71,44 @@ float MovingAvgeFilter(float raw_value, int n_samples)
 
 void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
 {
-    tag offset;
-    
+    manta_positioning::mqtt_msg pose_msg;
     readConfigData();
-    
-    if(flag == 0){
-        prev_raw_value = msg->data[0].pose.position.z;
-        prev_avg_value = msg->data[0].pose.position.z;
 
+    if(flag == 0){
+        for(int i=0; i<msg->data.size(); i++){
+            for(int j=0; j<tags.size(); j++){
+                if(tags[j].id == msg->data[i].header.frame_id){
+                    tags[j].prev_raw_value = msg->data[i].pose.position.z;
+                    cout << tags[j].prev_raw_value << endl;
+                }
+            }
+        }
         flag++;
     }
 
     for(int i=0; i<msg->data.size(); i++){
-        pose = msg->data[i];                                                                 // data copy (deep copy)
-        if(to_string(tag_id) == pose.header.frame_id)
-        {
-            // Filtering
-            pose.pose.position.z = LowPassFilter(msg->data[i].pose.position.z, z_alpha);          // Low Pass Filter
-            // pose.pose.position.z = MovingAvgeFilter(msg->data[i].pose.position.z, 500);
-            // Data Offset
-            setOffset(tag{pose.pose.position.x, pose.pose.position.y, pose.pose.position.z});
-
-            pose_pub.publish(pose);
-            break;
+        for(int j=0; j<tags.size(); j++){
+            if(tags[j].id == msg->data[i].header.frame_id){
+                tags[j].x = msg->data[i].pose.position.x;
+                tags[j].y = msg->data[i].pose.position.y;
+                tags[j].z = msg->data[i].pose.position.z;
+            }
+            // cout << j << endl;
         }
     }
+
+    for(int i=0; i<msg->data.size(); i++){
+        pose = msg->data[i];                                                                 // data copy (deep copy)
+        for(int j=0; j<tags.size(); j++){
+            if(tags[j].id == msg->data[i].header.frame_id){
+                // Filtering
+                pose.pose.position.z = LowPassFilter(tags[j], j);          // Low Pass Filter z
+                // cout << "callback index " << j << endl;
+            }
+        }
+        pose_msg.data.push_back(pose);
+    }
+    pose_pub.publish(pose_msg);
 }
 
 int main(int argc, char **argv){
@@ -105,16 +117,10 @@ int main(int argc, char **argv){
     ros::NodeHandle nh; 
     ros::Rate loop_rate(10);
 
-    string topic = "coord";
-    nh.getParam("tag_id", tag_id);
-
     ros::Subscriber obstacle_sub = nh.subscribe("/mqtt_coord", 10, poseCallback);  // Data from mqtt protocol
-    // ros::Subscriber obstacle_sub = nh.subscribe("/coord", 10, poseCallback);    // Data from raspberry pi / arduino
+    pose_pub = nh.advertise<manta_positioning::mqtt_msg>("/filtered/mqtt_coord", 10);
 
-    pose_pub = nh.advertise<geometry_msgs::PoseStamped>(topic, 10);
-
-    while(ros::ok()){
-
+     while(ros::ok()){
         ros::spinOnce();
         loop_rate.sleep();
     }
