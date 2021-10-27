@@ -41,15 +41,13 @@ manta_positioning::mqtt_msg pose_msg;
 geometry_msgs::PoseStamped pose;
 ros::Publisher pose_pub;
 
-float prev_avg_value;
-float x_alpha, y_alpha, z_alpha;
-float xoffset, yoffset, zoffset;
 int flag=0;
+float prev_avg_value;
 vector<float> data_buff;
 
 void readConfigData();
 void updateConfigData();
-float setoffset();
+float setoffset(tag tag_data, int index, int num);
 float LowPassFilter(tag tag_data, int index, int num);
-float MovingAvgeFilter();
+float MovingAvgeFilter(float raw_value, int n_samples);
 void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg);
