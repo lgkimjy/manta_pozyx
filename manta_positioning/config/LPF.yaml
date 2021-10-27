@@ -1,15 +1,50 @@
 tag 0 :
-  id : 30306
-  x_alpha : 1
-  y_alpha : 1
-  z_alpha : 0.1
-tag 1 :
   id : 30307
-  x_alpha : 2
-  y_alpha : 2
-  z_alpha : 0.002
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 1 :
+  id : 30306
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.1
 tag 2 :
   id : 30308
-  x_alpha : 3
-  y_alpha : 3
-  z_alpha : 0.003
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 3 :
+  id : 30309
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 4 :
+  id : 30310
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 5 :
+  id : 30311
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 6 :
+  id : 30312
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 7 :
+  id : 30313
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 8 :
+  id : 30314
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001
+tag 9 :
+  id : 30315
+  x_alpha : 0.01
+  y_alpha : 0.01
+  z_alpha : 0.001

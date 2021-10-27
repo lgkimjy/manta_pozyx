@@ -7,11 +7,6 @@
 
 void readConfigData()
 {
-    YAML::Node lpf_doc;
-    YAML::Node offset_doc;
-    std::string path_lpf = ros::package::getPath("manta_positioning")+"/config/LPF.yaml";
-    std::string path_offset = ros::package::getPath("manta_positioning")+"/config/offset.yaml";
-
     try{
         lpf_doc = YAML::LoadFile(path_lpf.c_str());
         offset_doc = YAML::LoadFile(path_offset.c_str());
@@ -20,26 +15,24 @@ void readConfigData()
         ROS_ERROR("Fail to load Config yaml file!");
         return;
     }
-    vector<string> docs = {"tag 0", "tag 1", "tag 2"};
 
     tags.clear();
     for(int i=0; i<docs.size(); i++)
     {
         tag temp;
         temp.id = lpf_doc[docs[i]]["id"].as<string>();
-        temp.x_alpha = lpf_doc[docs[i]]["x_alpha"].as<float>();
-        temp.y_alpha = lpf_doc[docs[i]]["y_alpha"].as<float>();
-        temp.z_alpha = lpf_doc[docs[i]]["z_alpha"].as<float>();
+        temp.alpha[0] = lpf_doc[docs[i]]["x_alpha"].as<float>();
+        temp.alpha[1] = lpf_doc[docs[i]]["y_alpha"].as<float>();
+        temp.alpha[2] = lpf_doc[docs[i]]["z_alpha"].as<float>();
+        temp.offset[0] = offset_doc[docs[i]]["x"].as<float>();
+        temp.offset[1] = offset_doc[docs[i]]["y"].as<float>();
+        temp.offset[2] = offset_doc[docs[i]]["z"].as<float>();
         tags.push_back(temp);
     }
 }
 
 void updateConfigData()
 {
-    YAML::Node lpf_doc;
-    YAML::Node offset_doc;
-    std::string path_lpf = ros::package::getPath("manta_positioning")+"/config/LPF.yaml";
-    std::string path_offset = ros::package::getPath("manta_positioning")+"/config/offset.yaml";
     try{
         lpf_doc = YAML::LoadFile(path_lpf.c_str());
         offset_doc = YAML::LoadFile(path_offset.c_str());
@@ -48,22 +41,24 @@ void updateConfigData()
         ROS_ERROR("Fail to load Config yaml file!");
         return;
     }
-    vector<string> docs = {"tag 0", "tag 1", "tag 2"};
 
     for(int i=0; i<docs.size(); i++)
     {
-        tags[i].x_alpha = lpf_doc[docs[i]]["x_alpha"].as<float>();
-        tags[i].y_alpha = lpf_doc[docs[i]]["y_alpha"].as<float>();
-        tags[i].z_alpha = lpf_doc[docs[i]]["z_alpha"].as<float>();
+        tags[i].alpha[0] = lpf_doc[docs[i]]["x_alpha"].as<float>();
+        tags[i].alpha[1] = lpf_doc[docs[i]]["y_alpha"].as<float>();
+        tags[i].alpha[2] = lpf_doc[docs[i]]["z_alpha"].as<float>();
+        tags[i].offset[0] = offset_doc[docs[i]]["x"].as<float>();
+        tags[i].offset[1] = offset_doc[docs[i]]["y"].as<float>();
+        tags[i].offset[2] = offset_doc[docs[i]]["z"].as<float>();
     }
 }
 
-float LowPassFilter(tag tag_data, int index)
+float LowPassFilter(tag tag_data, int index, int num)
 {
     float output;
-    // cout << "tag id : " << tag_data.z << " : " << tag_data.z_alpha << " : " << tag_data.prev_raw_value << " " << index << endl;
-    output = tag_data.z_alpha * tag_data.z + (1.0 - tag_data.z_alpha) * tag_data.prev_raw_value;
-    tags[index].prev_raw_value = output;
+    output = tag_data.alpha[num] * tag_data.pose[num] + (1.0 - tag_data.alpha[num]) * tag_data.prev_raw_value[num];
+    tags[index].pose[num] = output;
+    tags[index].prev_raw_value[num] = output;
 
     return output;
 }
@@ -93,17 +88,27 @@ float MovingAvgeFilter(float raw_value, int n_samples)
     return output;
 }
 
+float setoffset(tag tag_data, int index, int num)
+{
+    float output;
+    output = tag_data.pose[num] - tag_data.offset[num];
+    tags[index].pose[num] = output;
+
+    return output;
+}
+
 void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
 {
-    manta_positioning::mqtt_msg pose_msg;
-
     updateConfigData();
+    pose_msg.data.clear();
 
     if(flag == 0){
         for(int i=0; i<msg->data.size(); i++){
             for(int j=0; j<tags.size(); j++){
                 if(tags[j].id == msg->data[i].header.frame_id){
-                    tags[j].prev_raw_value = msg->data[i].pose.position.z;
+                    tags[j].prev_raw_value[0] = msg->data[i].pose.position.x;
+                    tags[j].prev_raw_value[1] = msg->data[i].pose.position.y;
+                    tags[j].prev_raw_value[2] = msg->data[i].pose.position.z;
                 }
             }
         }
@@ -111,22 +116,22 @@ void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
     }
 
     for(int i=0; i<msg->data.size(); i++){
+        pose = msg->data[i];                                                  // data copy (deep copy)
         for(int j=0; j<tags.size(); j++){
             if(tags[j].id == msg->data[i].header.frame_id){
-                tags[j].x = msg->data[i].pose.position.x;
-                tags[j].y = msg->data[i].pose.position.y;
-                tags[j].z = msg->data[i].pose.position.z;
-            }
-            // cout << j << endl;
-        }
-    }
+                tags[j].pose[0] = msg->data[i].pose.position.x;
+                tags[j].pose[1] = msg->data[i].pose.position.y;
+                tags[j].pose[2] = msg->data[i].pose.position.z;
 
-    for(int i=0; i<msg->data.size(); i++){
-        pose = msg->data[i];                                                            // data copy (deep copy)
-        for(int j=0; j<tags.size(); j++){
-            if(tags[j].id == msg->data[i].header.frame_id){
                 // Filtering
-                pose.pose.position.z = LowPassFilter(tags[j], j);                       // Low Pass Filter z
+                pose.pose.position.x = LowPassFilter(tags[j], j, 0);          // Low Pass Filter x
+                pose.pose.position.y = LowPassFilter(tags[j], j, 1);          // Low Pass Filter y
+                pose.pose.position.z = LowPassFilter(tags[j], j, 2);          // Low Pass Filter z
+
+                // Offset
+                pose.pose.position.x = setoffset(tags[j], j, 0);              // offset x
+                pose.pose.position.y = setoffset(tags[j], j, 1);              // offset y
+                pose.pose.position.z = setoffset(tags[j], j, 2);              // offset z
             }
         }
         pose_msg.data.push_back(pose);
@@ -143,6 +148,9 @@ int main(int argc, char **argv){
     ros::Subscriber obstacle_sub = nh.subscribe("/mqtt_coord", 10, poseCallback);  // Data from mqtt protocol
     pose_pub = nh.advertise<manta_positioning::mqtt_msg>("/filtered/mqtt_coord", 10);
 
+    path_lpf = ros::package::getPath("manta_positioning")+"/config/LPF.yaml";
+    path_offset = ros::package::getPath("manta_positioning")+"/config/offset.yaml";
+    docs = {"tag 0", "tag 1", "tag 2", "tag 3", "tag 4", "tag 5", "tag 6", "tag 7", "tag 8", "tag 9"};
     readConfigData();
 
      while(ros::ok()){
