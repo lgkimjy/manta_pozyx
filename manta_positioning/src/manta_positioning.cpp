@@ -150,7 +150,11 @@ int main(int argc, char **argv){
 
     path_lpf = ros::package::getPath("manta_positioning")+"/config/LPF.yaml";
     path_offset = ros::package::getPath("manta_positioning")+"/config/offset.yaml";
-    docs = {"tag 0", "tag 1", "tag 2", "tag 3", "tag 4", "tag 5", "tag 6", "tag 7", "tag 8", "tag 9"};
+    docs = {"tag 101", "tag 102", "tag 103", "tag 104", "tag 105", "tag 106", "tag 107", "tag 108", "tag 109", "tag 110",
+            "tag 111", "tag 112", "tag 113", "tag 114", "tag 115", "tag 116", "tag 117", "tag 118", "tag 119", "tag 120",
+            "tag 121", "tag 122", "tag 123", "tag 124", "tag 125", "tag 126", "tag 127", "tag 128", "tag 129", "tag 130",
+            "tag 131", "tag 132", "tag 133", "tag 134", "tag 135", "tag 136", "tag 137", "tag 138", "tag 139", "tag 140",
+            "tag 141", "tag 142", "tag 143", "tag 144", "tag 145", "tag 146", "tag 147", "tag 148", "tag 149", "tag 150"};
     readConfigData();
 
      while(ros::ok()){
