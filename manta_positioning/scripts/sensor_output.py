@@ -34,17 +34,21 @@ def returnQuaternion():
 	return quaternion.x, quaternion.y, quaternion.z, quaternion.w
 
 def timer_callback(event):
+	ros_time = rospy.get_rostime()
 	# acceleration
 	acc_msg = AccelStamped()
+	acc_msg.header.stamp = ros_time
 	acc_msg.header.frame_id = str(system_details.id)
 	acc_msg.accel.linear.x, acc_msg.accel.linear.y, acc_msg.accel.linear.z = returnLinearAcceleration()
 	acc_msg.accel.angular.x, acc_msg.accel.angular.y, acc_msg.accel.angular.z = returnAngularVelocity()
 	# quaternion
 	quat_msg = QuaternionStamped()
+	quat_msg.header.stamp = ros_time
 	quat_msg.header.frame_id = str(system_details.id)
 	quat_msg.quaternion.x, quat_msg.quaternion.y, quat_msg.quaternion.z, quat_msg.quaternion.w = returnQuaternion()
 	# euler
 	euler_msg = QuaternionStamped()
+	euler_msg.header.stamp = ros_time
 	euler_msg.header.frame_id = str(system_details.id)
 	euler_msg.quaternion.x, euler_msg.quaternion.y, euler_msg.quaternion.z = returnEulerAngles()  ## roll, pitch, yaw
 	# publisher
