@@ -19,7 +19,7 @@ def returnEulerAngles():
 	euler_angles_deg = EulerAngles()
 	pozyx.getEulerAngles_deg(euler_angles_deg)
 	# print("Euler angles: ", euler_angles_deg.heading, ", ", euler_angles_deg.roll, ", ", euler_angles_deg.pitch)
-	return euler_angles_deg.roll, euler_angles_deg.pitch, euler_angles_deg.heading
+	return -1*euler_angles_deg.pitch, -1*euler_angles_deg.roll, 360-euler_angles_deg.heading
 
 def returnLinearAcceleration():
 	linear_acceleration_mg = LinearAcceleration()
