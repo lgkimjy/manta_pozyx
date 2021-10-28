@@ -43,9 +43,9 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
+  # LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp roslib sensor_msgs  geometry_msgs
-  DEPENDS system_lib
+  # DEPENDS system_lib
 )
 
 include_directories(
