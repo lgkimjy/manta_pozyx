@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import rospy
 from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, MaxLinearAcceleration, Quaternion)
-from geometry_msgs.msg import Accel
+from pypozyx.structures.device_information import DeviceDetails
+from geometry_msgs.msg import AccelStamped
 from geometry_msgs.msg import QuaternionStamped
 
-pub_acc = rospy.Publisher('/accel', Accel, queue_size=10)
+pub_acc = rospy.Publisher('/accel', AccelStamped, queue_size=10)
 pub_quat = rospy.Publisher('/quaternion', QuaternionStamped, queue_size=10)
 pub_euler = rospy.Publisher('/euler_ang', QuaternionStamped, queue_size=10)
 
@@ -34,14 +35,17 @@ def returnQuaternion():
 
 def timer_callback(event):
 	# acceleration
-	acc_msg = Accel()
-	acc_msg.linear.x, acc_msg.linear.y, acc_msg.linear.z = returnLinearAcceleration()
-	acc_msg.angular.x, acc_msg.angular.y, acc_msg.angular.z = returnAngularVelocity()
+	acc_msg = AccelStamped()
+	acc_msg.header.frame_id = str(system_details.id)
+	acc_msg.accel.linear.x, acc_msg.accel.linear.y, acc_msg.accel.linear.z = returnLinearAcceleration()
+	acc_msg.accel.angular.x, acc_msg.accel.angular.y, acc_msg.accel.angular.z = returnAngularVelocity()
 	# quaternion
 	quat_msg = QuaternionStamped()
+	quat_msg.header.frame_id = str(system_details.id)
 	quat_msg.quaternion.x, quat_msg.quaternion.y, quat_msg.quaternion.z, quat_msg.quaternion.w = returnQuaternion()
 	# euler
 	euler_msg = QuaternionStamped()
+	euler_msg.header.frame_id = str(system_details.id)
 	euler_msg.quaternion.x, euler_msg.quaternion.y, euler_msg.quaternion.z = returnEulerAngles()  ## roll, pitch, yaw
 	# publisher
 	pub_acc.publish(acc_msg)
@@ -58,6 +62,15 @@ if __name__ == '__main__':
 	else:
 		rospy.logerr("No Pozyx port was found")
 		exit(1)
+
+	remote_id =None
+	system_details = DeviceDetails()
+	pozyx.getDeviceDetails(system_details, remote_id=None)
+
+	if remote_id is None:
+		print("Local %s with id 0x%d" % (system_details.device_name, system_details.id))
+	else:
+		print("%s with id 0x%0.4x" % (system_details.device_name.capitalize(), system_details.id))
 
 	rospy.init_node('sensor_output', anonymous=True)
 	rospy.Timer(rospy.Duration(0.01), timer_callback)
