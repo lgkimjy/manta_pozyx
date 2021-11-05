@@ -1,20 +1,24 @@
 #!/usr/bin/env python3
 import rospy
+from scipy import signal
 from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, MaxLinearAcceleration, Quaternion)
 from pypozyx.structures.device_information import DeviceDetails
-from geometry_msgs.msg import AccelStamped
-from geometry_msgs.msg import QuaternionStamped
+from geometry_msgs.msg import AccelStamped, QuaternionStamped, TwistStamped
 from nav_msgs.msg import Odometry
 
 pub_acc = rospy.Publisher('/accel', AccelStamped, queue_size=10)
 pub_euler = rospy.Publisher('/euler_ang', QuaternionStamped, queue_size=10)
 pub_lpf_acc = rospy.Publisher('/lpf/accel', AccelStamped, queue_size=10)
 pub_pose = rospy.Publisher('/imu_odom', Odometry, queue_size=10)
+pub_vel = rospy.Publisher('/vel', TwistStamped, queue_size=10)
 
 pre_linear_x = pre_linear_y = pre_linear_z = 0
+h_pre_linear_x = h_pre_linear_y = h_pre_linear_z = 0
 old_vx = old_vy = old_vz = 0
+hold_vx = hold_vy = hold_vz = 0
 odom_msg = Odometry()
-dt = 0.01
+dt = 0.03
+flag = 0
 
 def returnAngularVelocity():
 	angular_velocity_dps = AngularVelocity()
@@ -44,8 +48,14 @@ def LowPassFilter(raw_data, prev_data, alpha):
 	output = raw_data * alpha + (1 -alpha) * prev_data
 	return output
 
+def HighPassFilter(raw_data, prev_data, prev_filtered_data, alpha):
+	output = alpha * (prev_filtered_data + raw_data - prev_data)
+	return output, raw_data
+
 def timer_callback(event):
-	global pre_linear_x, pre_linear_y, pre_linear_z, old_vx, old_vy, old_vz
+	global pre_linear_x, pre_linear_y, pre_linear_z, old_vx, old_vy, old_vz, h_pre_linear_x,h_pre_linear_y, \
+		   h_pre_linear_z,hold_vx,hold_vy,hold_vz, flag
+
 	ros_time = rospy.get_rostime()
 	# acceleration
 	acc_msg = AccelStamped()
@@ -62,26 +72,50 @@ def timer_callback(event):
 
 	# lpf acc
 	acc_lpf_msg = AccelStamped()
-	pre_linear_x = LowPassFilter(acc_msg.accel.linear.x, pre_linear_x, 0.01)
-	pre_linear_y = LowPassFilter(acc_msg.accel.linear.y, pre_linear_y, 0.01)
-	pre_linear_z = LowPassFilter(acc_msg.accel.linear.z, pre_linear_z, 0.01)
-	acc_lpf_msg.accel.linear.x = old_vx + pre_linear_x * dt
-	acc_lpf_msg.accel.linear.y = old_vy + pre_linear_y * dt
-	acc_lpf_msg.accel.linear.z = old_vz + pre_linear_z * dt
-	old_vx = pre_linear_x * dt
-	old_vy = pre_linear_y * dt
-	old_vz = pre_linear_z * dt
+	pre_linear_x = LowPassFilter(acc_msg.accel.linear.x, pre_linear_x, 0.1)
+	pre_linear_y = LowPassFilter(acc_msg.accel.linear.y, pre_linear_y, 0.1)
+	pre_linear_z = LowPassFilter(acc_msg.accel.linear.z, pre_linear_z, 0.1)
+	acc_lpf_msg.accel.linear.x = pre_linear_x
+	acc_lpf_msg.accel.linear.y = pre_linear_y
+	acc_lpf_msg.accel.linear.z = pre_linear_z
 
-	# odom_msg.header.frame_id = str(system_details.id)
-	# odom_msg.pose.pose.position.x = odom_msg.pose.pose.position.x + (pre_linear_x * 0.001 * 0.003)
-	# odom_msg.pose.pose.position.y = odom_msg.pose.pose.position.y + (pre_linear_y * 0.003 * 0.003)
-	# odom_msg.pose.pose.position.z = odom_msg.pose.pose.position.z + (pre_linear_z * 0.003 * 0.003)
+	vel_msg = TwistStamped()
+	vel_msg.header.frame_id = str(system_details.id)
+	if(abs(pre_linear_x) > 10 or abs(pre_linear_y) > 10 or abs(pre_linear_z) > 10):
+		old_vx += pre_linear_x * dt
+		old_vy += pre_linear_y * dt
+		old_vz += pre_linear_z * dt
+	else : 	
+		old_vx = 0
+		old_vy = 0
+		old_vz = 0
 
+	flag += 1
+	if (flag == 0):
+		hold_vx = old_vx
+		hold_vy = old_vy
+		hold_vz = old_vz
+	else :
+		hold_vx, h_pre_linear_x = HighPassFilter(old_vx, h_pre_linear_x, hold_vx, 0.1)
+		hold_vy, h_pre_linear_y = HighPassFilter(old_vy, h_pre_linear_y, hold_vy, 0.1)
+		hold_vz, h_pre_linear_z = HighPassFilter(old_vz, h_pre_linear_z, hold_vz, 0.1)
+
+	vel_msg.twist.linear.x  = hold_vx
+	vel_msg.twist.linear.y  = hold_vy
+	vel_msg.twist.linear.z  = hold_vz
+
+	odom_msg.header.frame_id = str(system_details.id)
+	odom_msg.pose.pose.position.x += (hold_vx * dt)
+	odom_msg.pose.pose.position.y += (hold_vy * dt)
+	# odom_msg.pose.pose.position.z += (old_vz * dt)
+	odom_msg.pose.pose.position.z += 0
+	
 	# publisher
 	pub_acc.publish(acc_msg)
 	pub_euler.publish(euler_msg)
 	pub_lpf_acc.publish(acc_lpf_msg)
-	# pub_pose.publish(odom_msg)
+	pub_vel.publish(vel_msg)
+	pub_pose.publish(odom_msg)
 
 if __name__ == '__main__':
 	global pozyx
@@ -108,6 +142,7 @@ if __name__ == '__main__':
 
 	# LPF data initalization
 	pre_linear_x, pre_linear_y, pre_linear_z = returnLinearAcceleration()
+	# pre_linear_x = pre_linear_y = pre_linear_z = 0
 
 	while not rospy.is_shutdown():
 		rospy.sleep(0.1)
