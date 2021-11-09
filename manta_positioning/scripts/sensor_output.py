@@ -2,8 +2,7 @@
 import rospy
 from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, MaxLinearAcceleration, Quaternion)
 from pypozyx.structures.device_information import DeviceDetails
-from geometry_msgs.msg import AccelStamped
-from geometry_msgs.msg import QuaternionStamped
+from geometry_msgs.msg import AccelStamped, QuaternionStamped
 
 pub_acc = rospy.Publisher('/accel', AccelStamped, queue_size=10)
 pub_quat = rospy.Publisher('/quaternion', QuaternionStamped, queue_size=10)
@@ -33,13 +32,29 @@ def returnQuaternion():
 	#print("Quaternion: ", quaternion.x, ", ", quaternion.y, ", ", quaternion.z, ", ", quaternion.w)
 	return quaternion.x, quaternion.y, quaternion.z, quaternion.w
 
+def LowPassFilter(raw_data, prev_data, alpha):
+	output = raw_data * alpha + (1 -alpha) * prev_data
+	return output
+
+def HighPassFilter(raw_data, prev_data, prev_filtered_data, alpha):
+	output = alpha * (prev_filtered_data + raw_data - prev_data)
+	return output, raw_data
+
 def timer_callback(event):
+	global pre_linear_x, pre_linear_y, pre_linear_z
+	
 	ros_time = rospy.get_rostime()
 	# acceleration
 	acc_msg = AccelStamped()
 	acc_msg.header.stamp = ros_time
 	acc_msg.header.frame_id = str(system_details.id)
 	acc_msg.accel.linear.x, acc_msg.accel.linear.y, acc_msg.accel.linear.z = returnLinearAcceleration()
+	pre_linear_x = LowPassFilter(acc_msg.accel.linear.x, pre_linear_x, 0.8)
+	pre_linear_y = LowPassFilter(acc_msg.accel.linear.y, pre_linear_y, 0.8)
+	pre_linear_z = LowPassFilter(acc_msg.accel.linear.z, pre_linear_z, 0.8)
+	acc_msg.accel.linear.x = pre_linear_x
+	acc_msg.accel.linear.y = pre_linear_y
+	acc_msg.accel.linear.z = pre_linear_z
 	acc_msg.accel.angular.x, acc_msg.accel.angular.y, acc_msg.accel.angular.z = returnAngularVelocity()
 	# quaternion
 	quat_msg = QuaternionStamped()
@@ -78,6 +93,8 @@ if __name__ == '__main__':
 
 	rospy.init_node('sensor_output', anonymous=True)
 	rospy.Timer(rospy.Duration(0.01), timer_callback)
+
+	pre_linear_x, pre_linear_y, pre_linear_z = returnLinearAcceleration()
 
 	while not rospy.is_shutdown():
 		rospy.sleep(0.1)
