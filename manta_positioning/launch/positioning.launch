@@ -1,9 +1,5 @@
 <launch>
   
-  <param name="tag_id" value="30306" />
-  <arg name="robot_id" default="robot_0"/>
-  <group ns="$(arg robot_id)">
-      <node pkg="manta_positioning" type="manta_positioning" name="manta_positioning" output="screen"></node>
-  </group>
+      <node pkg="manta_positioning" type="manta_positioning" name="manta_positioning" output="screen" respawn="true"></node>
 
 </launch>
