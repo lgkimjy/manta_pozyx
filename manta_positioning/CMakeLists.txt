@@ -34,11 +34,13 @@ message_generation
 add_message_files(
   FILES
   mqtt_msg.msg
+  mqtt_mag.msg
 )
 
 generate_messages(
   DEPENDENCIES
   geometry_msgs
+  sensor_msgs
 )
 
 catkin_package(
