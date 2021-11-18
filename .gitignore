@@ -5,3 +5,5 @@
 *.xlsx
 *.xls
 *.fig
+arduino/*
+data/*
