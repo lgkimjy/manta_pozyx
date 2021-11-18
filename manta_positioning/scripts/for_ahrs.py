@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import rospy
-from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, AngularVelocity, EulerAngles, LinearAcceleration, Quaternion, Magnetic)
+from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, Quaternion, Magnetic)
 from pypozyx.structures.device_information import DeviceDetails
 from geometry_msgs.msg import AccelStamped, QuaternionStamped
 from sensor_msgs.msg import Imu, MagneticField
@@ -14,19 +14,21 @@ def returnAngularVelocity():
 	angular_velocity_dps = AngularVelocity()
 	pozyx.getAngularVelocity_dps(angular_velocity_dps)
 	# print("Angular velocity: ", angular_velocity_dps.x, ", ", angular_velocity_dps.y, ", ", angular_velocity_dps.z)
-	return angular_velocity_dps.x, angular_velocity_dps.y, angular_velocity_dps.z
+	return angular_velocity_dps.x*0.017448352875489, angular_velocity_dps.y*0.017448352875489, angular_velocity_dps.z*0.017448352875489   # multiply 0.017448352875489 to conver to rps
 
 def returnEulerAngles():
 	euler_angles_deg = EulerAngles()
-	pozyx.getEulerAngles_deg(euler_angles_deg)	
+	pozyx.getEulerAngles_deg(euler_angles_deg)
 	# print("Euler angles: ", euler_angles_deg.heading, ", ", euler_angles_deg.roll, ", ", euler_angles_deg.pitch)
 	return -1*euler_angles_deg.pitch, -1*euler_angles_deg.roll, 360-euler_angles_deg.heading
 
 def returnLinearAcceleration():
-	linear_acceleration_mg = LinearAcceleration()
-	pozyx.getLinearAcceleration_mg(linear_acceleration_mg)
-	# print("Linear acceleration: ", linear_acceleration_mg.x, ", ", linear_acceleration_mg.y, ", ", linear_acceleration_mg.z)
-	return linear_acceleration_mg.x, linear_acceleration_mg.y, linear_acceleration_mg.z
+	acceleration_mg = Acceleration()
+	# linear_acceleration_mg = LinearAcceleration()
+	pozyx.getAcceleration_mg(acceleration_mg)
+	# pozyx.getLinearAcceleration_mg(linear_acceleration_mg)
+	return acceleration_mg.x, acceleration_mg.y, acceleration_mg.z
+	# return linear_acceleration_mg.x, linear_acceleration_mg.y, linear_acceleration_mg.z
 
 def returnQuaternion():
 	quaternion = Quaternion()
@@ -52,6 +54,7 @@ def timer_callback(event):
 	imu_msg = Imu()
 	imu_msg.header.stamp = ros_time
 	imu_msg.header.frame_id = str(system_details.id)
+	imu_msg.orientation.x, imu_msg.orientation.y, imu_msg.orientation.z, imu_msg.orientation.w, = returnQuaternion()
 	imu_msg.linear_acceleration.x, imu_msg.linear_acceleration.y, imu_msg.linear_acceleration.z = returnLinearAcceleration()
 	# pre_linear_x = LowPassFilter(imu_msg.linear_acceleration.x, pre_linear_x, 0.9)
 	# pre_linear_y = LowPassFilter(imu_msg.linear_acceleration.y, pre_linear_y, 0.9)
