@@ -6,12 +6,12 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 
 find_path(YAML_CPP_INCLUDE_DIR
-  NAMES yaml_cpp.h
-  PATHS ${YAML_CPP_INCLUDE_DIRS}
+NAMES yaml_cpp.h
+PATHS ${YAML_CPP_INCLUDE_DIRS}
 )
 find_library(YAML_CPP_LIBRARY
-  NAMES YAML_CPP
-  PATHS ${YAML_CPP_LIBRARY_DIRS}
+NAMES YAML_CPP
+PATHS ${YAML_CPP_LIBRARY_DIRS}
 )
 link_directories(${YAML_CPP_LIBRARY_DIRS})
 
@@ -29,12 +29,15 @@ sensor_msgs
 std_msgs
 roslib
 message_generation
+message_filters
 )
+find_package(Boost REQUIRED COMPONENTS system thread)
 
 add_message_files(
   FILES
   mqtt_msg.msg
   mqtt_mag.msg
+  mqtt_imu.msg
 )
 
 generate_messages(
@@ -44,9 +47,10 @@ generate_messages(
 )
 
 catkin_package(
+  DEPENDS Boost
   INCLUDE_DIRS include
   # LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp roslib sensor_msgs  geometry_msgs
+  CATKIN_DEPENDS roscpp roslib sensor_msgs  geometry_msgs message_filters
   # DEPENDS system_lib
 )
 
@@ -54,6 +58,7 @@ include_directories(
     include 
     ${catkin_INCLUDE_DIRS}
     ${YAML_CPP_INCLIDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_executable(manta_positioning src/manta_positioning.cpp)
