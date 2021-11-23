@@ -30,6 +30,7 @@ std_msgs
 roslib
 message_generation
 message_filters
+mqtt2ros
 )
 find_package(Boost REQUIRED COMPONENTS system thread)
 
