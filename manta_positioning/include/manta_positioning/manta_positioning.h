@@ -27,9 +27,9 @@
 #include <tf2/convert.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <manta_positioning/mqtt_msg.h>
-#include <manta_positioning/mqtt_mag.h>
-#include <manta_positioning/mqtt_imu.h>
+#include <mqtt2ros/mqtt_msg.h>
+#include <mqtt2ros/mqtt_mag.h>
+#include <mqtt2ros/mqtt_imu.h>
 
 using namespace std;
 using namespace message_filters;
@@ -60,7 +60,7 @@ std::string path_offset;
 vector<string> docs;
 
 // ros publishers
-manta_positioning::mqtt_msg pose_msg;
+mqtt2ros::mqtt_msg pose_msg;
 geometry_msgs::PoseStamped pose;
 ros::Publisher pose_pub;
 
@@ -68,6 +68,8 @@ ros::Publisher pose_pub;
 int flag = 0;
 float prev_avg_value;
 vector<float> data_buff;
+
+bool ahrs_flag = false;
 
 template <typename T>
 static inline void crossProduct(
@@ -105,8 +107,8 @@ bool computeOrientation(
     geometry_msgs::Quaternion &orientation);
 
 /* callback */
-void poseCallback(const manta_positioning::mqtt_msg::ConstPtr &msg);
+void poseCallback(const mqtt2ros::mqtt_msg::ConstPtr &msg);
 void imuMagPoseCallback(
-    const manta_positioning::mqtt_imu::ConstPtr &imu_msg_raw, 
-    const manta_positioning::mqtt_mag::ConstPtr &mag_msg,
-    const manta_positioning::mqtt_msg::ConstPtr &msg);
+    const mqtt2ros::mqtt_imu::ConstPtr &imu_msg_raw, 
+    const mqtt2ros::mqtt_mag::ConstPtr &mag_msg,
+    const mqtt2ros::mqtt_msg::ConstPtr &msg);

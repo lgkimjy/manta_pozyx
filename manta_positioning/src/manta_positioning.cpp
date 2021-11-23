@@ -162,9 +162,9 @@ double Convert(double radian)
 }
 
 void imuMagPoseCallback(
-    const manta_positioning::mqtt_imu::ConstPtr &imu_msg_raw, 
-    const manta_positioning::mqtt_mag::ConstPtr &mag_msg,
-    const manta_positioning::mqtt_msg::ConstPtr &msg)
+    const mqtt2ros::mqtt_imu::ConstPtr &imu_msg_raw, 
+    const mqtt2ros::mqtt_mag::ConstPtr &mag_msg,
+    const mqtt2ros::mqtt_msg::ConstPtr &msg)
 {
     updateConfigData();
     pose_msg.data.clear();
@@ -182,7 +182,7 @@ void imuMagPoseCallback(
         flag++;
     }
 
-    ROS_INFO("----------------------------------------------------------");
+    if(ahrs_flag) ROS_INFO("----------------------------------------------------------");
     for(int i=0; i<msg->data.size(); i++){
         pose = msg->data[i];                                                  // data copy (deep copy)
         for(int j=0; j<tags.size(); j++){
@@ -205,27 +205,28 @@ void imuMagPoseCallback(
                 geometry_msgs::Vector3 lin_acc = imu_msg_raw->data[i].linear_acceleration;
                 geometry_msgs::Vector3 mag_fld = mag_msg->data[i].magnetic_field;
 
-                double roll, pitch, yaw = 0.0;
-                // wait for mag message without NaN / inf
-                if (!isfinite(mag_fld.x) || !isfinite(mag_fld.y) || !isfinite(mag_fld.z)) return;
+                if(ahrs_flag){
+                    double roll, pitch, yaw = 0.0;
+                    // wait for mag message without NaN / inf
+                    if (!isfinite(mag_fld.x) || !isfinite(mag_fld.y) || !isfinite(mag_fld.z)) return;
 
-                geometry_msgs::Quaternion init_q;
-                if (!computeOrientation(WorldFrame::ENU, lin_acc, mag_fld, init_q))
-                {
-                    ROS_WARN_THROTTLE(5.0, "[%s] The IMU seems to be in free fall or close to magnetic north pole, cannot determine gravity direction!", msg->data[i].header.frame_id.c_str());
-                    return;
+                    geometry_msgs::Quaternion init_q;
+                    if (!computeOrientation(WorldFrame::ENU, lin_acc, mag_fld, init_q))
+                    {
+                        ROS_WARN_THROTTLE(5.0, "[%s] The IMU seems to be in free fall or close to magnetic north pole, cannot determine gravity direction!", msg->data[i].header.frame_id.c_str());
+                        return;
+                    }
+                    // ROS_INFO("[%s] %f | %f | %f | %f ", msg->data[i].header.frame_id.c_str(), init_q.x, init_q.y, init_q.z,init_q.w);
+                    tf2::Matrix3x3(tf2::Quaternion(init_q.x, init_q.y, init_q.z,init_q.w)).getRPY(roll, pitch, yaw, 0);
+                    ROS_INFO("[%s] %f | %f | %f ", msg->data[i].header.frame_id.c_str() ,Convert(roll), Convert(pitch), Convert(yaw));
+
+                    /* 
+                    have to apply madgwickAHRSupdateIMU function to calculate absolute heading 
+                    */
+                    pose.pose.orientation.x = Convert(roll);
+                    pose.pose.orientation.y = Convert(pitch);
+                    pose.pose.orientation.z = Convert(yaw);
                 }
-                // ROS_INFO("[%s] %f | %f | %f | %f ", msg->data[i].header.frame_id.c_str(), init_q.x, init_q.y, init_q.z,init_q.w);
-                tf2::Matrix3x3(tf2::Quaternion(init_q.x, init_q.y, init_q.z,init_q.w)).getRPY(roll, pitch, yaw, 0);
-                ROS_INFO("[%s] %f | %f | %f ", msg->data[i].header.frame_id.c_str() ,Convert(roll), Convert(pitch), Convert(yaw));
-
-                /* 
-                  have to apply madgwickAHRSupdateIMU function to calculate absolute heading 
-                */
-
-                pose.pose.orientation.x = Convert(roll);
-                pose.pose.orientation.y = Convert(pitch);
-                pose.pose.orientation.z = Convert(yaw);
             }
         }
         pose_msg.data.push_back(pose);
@@ -233,7 +234,7 @@ void imuMagPoseCallback(
     pose_pub.publish(pose_msg);
 }
 
-void poseCallback(const manta_positioning::mqtt_msg::ConstPtr& msg)
+void poseCallback(const mqtt2ros::mqtt_msg::ConstPtr& msg)
 {
     updateConfigData();
     pose_msg.data.clear();
@@ -285,13 +286,13 @@ int main(int argc, char **argv)
 
     int queue_size = 5;
     // ros::Subscriber obstacle_sub = nh.subscribe("/mqtt_coord", queue_size, poseCallback); // Data from mqtt protocol
-    message_filters::Subscriber<manta_positioning::mqtt_imu> image_sub(nh, "/mqtt_imu", 1);
-    message_filters::Subscriber<manta_positioning::mqtt_mag> mag_sub(nh, "/mqtt_mag", 1);
-    message_filters::Subscriber<manta_positioning::mqtt_msg> pose_sub(nh, "/mqtt_coord", 1);
-    TimeSynchronizer<manta_positioning::mqtt_imu, manta_positioning::mqtt_mag, manta_positioning::mqtt_msg> sync(image_sub, mag_sub, pose_sub, 10);
+    message_filters::Subscriber<mqtt2ros::mqtt_imu> image_sub(nh, "/mqtt_imu", 1);
+    message_filters::Subscriber<mqtt2ros::mqtt_mag> mag_sub(nh, "/mqtt_mag", 1);
+    message_filters::Subscriber<mqtt2ros::mqtt_msg> pose_sub(nh, "/mqtt_coord", 1);
+    TimeSynchronizer<mqtt2ros::mqtt_imu, mqtt2ros::mqtt_mag, mqtt2ros::mqtt_msg> sync(image_sub, mag_sub, pose_sub, 10);
     sync.registerCallback(boost::bind(imuMagPoseCallback, _1, _2, _3));
 
-    pose_pub = nh.advertise<manta_positioning::mqtt_msg>("/filtered/mqtt_coord", 10);
+    pose_pub = nh.advertise<mqtt2ros::mqtt_msg>("/filtered/mqtt_coord", 10);
 
     path_lpf = ros::package::getPath("manta_positioning") + "/config/LPF.yaml";
     path_offset = ros::package::getPath("manta_positioning") + "/config/offset.yaml";
