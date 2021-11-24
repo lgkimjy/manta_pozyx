@@ -1,250 +1,250 @@
 tag 101 :
-  id : 30306
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 102 :
-  id : 30270
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 103 :
-  id : 30269
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 104 :
-  id : 30226
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 105 :
-  id : 30262
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 106 :
-  id : 30264
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 107 :
-  id : 30313
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 108 :
-  id : 30246
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 109 :
-  id : 30259
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 110 :
-  id : 30266
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 111 :
-  id : 30297
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 112 :
-  id : 30305
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 113 :
-  id : 30252
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 114 :
-  id : 30258
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 115 :
-  id : 26718
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 116 :
-  id : 26646
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 117 :
-  id : 30444
-  x_alpha : 0.1
-  y_alpha : 0.1
-  z_alpha : 0.1
-tag 118 :
   id : 26715
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
-tag 119 :
-  id : 26627
+tag 102 :
+  id : 26748
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
-tag 120 :
+tag 103 :
+  id : 30263
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 104 :
+  id : 30306
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 105 :
+  id : 30444
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 106 :
+  id : 26718
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 107 :
+  id : 26646
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 108 :
   id : 26643
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
+tag 109 :
+  id : 26627
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 110 :
+  id : 26691
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 111 :
+  id : 26674
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 112 :
+  id : 26702
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 113 :
+  id : 26707
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 114 :
+  id : 26698
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 115 :
+  id : 26654
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 116 :
+  id : 26737
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 117 :
+  id : 26695
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 118 :
+  id : 26707
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 119 :
+  id : 26677
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
+tag 120 :
+  id : 30252
+  x_alpha : 0.1
+  y_alpha : 0.1
+  z_alpha : 0.1
 tag 121 :
-  id : 30307
+  id : 26717
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 122 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 123 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 124 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 125 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 126 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 127 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 128 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 129 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 130 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 131 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 132 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 133 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 134 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 135 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 136 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 137 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 138 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 139 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 140 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 141 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 142 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 143 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 144 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 145 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 146 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 147 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 148 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 149 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
 tag 150 :
-  id : 30307
+  id : 00000
   x_alpha : 0.1
   y_alpha : 0.1
   z_alpha : 0.1
