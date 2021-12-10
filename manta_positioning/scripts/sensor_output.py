@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 import rospy
-from pypozyx import (get_first_pozyx_serial_port, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, MaxLinearAcceleration, Quaternion)
+from pypozyx import (get_first_pozyx_serial_port, get_serial_ports, PozyxSerial, Acceleration, AngularVelocity, EulerAngles, LinearAcceleration, MaxLinearAcceleration, Quaternion)
 from pypozyx.structures.device_information import DeviceDetails
 from geometry_msgs.msg import AccelStamped, QuaternionStamped
 
 pub_acc = rospy.Publisher('/accel', AccelStamped, queue_size=10)
 pub_quat = rospy.Publisher('/quaternion', QuaternionStamped, queue_size=10)
 pub_euler = rospy.Publisher('/euler_ang', QuaternionStamped, queue_size=10)
+
+def myhook():
+  print("shutdown Occured! Change Yaw state")
 
 def returnAngularVelocity():
 	angular_velocity_dps = AngularVelocity()
@@ -71,10 +74,16 @@ def timer_callback(event):
 	pub_quat.publish(quat_msg)
 	pub_euler.publish(euler_msg)
 
-if __name__ == '__main__':
-	global pozyx
 	serial_port = get_first_pozyx_serial_port()
+	if serial_port is None:
+		print("a")
+		rospy.signal_shutdown(myhook)
 
+
+if __name__ == '__main__':
+	global pozyx, serial_port, flag
+	serial_port = get_first_pozyx_serial_port()
+	print(serial_port)
 	if serial_port is not None:
 		pozyx = PozyxSerial(serial_port)
 		rospy.loginfo("Connection success!")
